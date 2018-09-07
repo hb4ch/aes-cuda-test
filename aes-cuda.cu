@@ -253,6 +253,7 @@ __global__ void cuda_main_kernel(unsigned char* text,
 
 	}
 	// printf("Kernel done!\n");
+
 }
 
 __global__ void transfer(unsigned char * d1_ptr, unsigned char * d2_ptr) {

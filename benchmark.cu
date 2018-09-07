@@ -75,8 +75,8 @@ void aes_benchmark::start() {
 						cudaMemcpyAsync(temp_d_fb, temp_file_buffer, batch_size,
 								cudaMemcpyHostToDevice, streams[j]));
 
-				cuda_main_kernel<<<batch_size / 16 / 1024, 1024>>>(temp_d_fb,
-						batch_size / 16, temp_d_result);
+				cuda_main_kernel<<<batch_size / 16 / 1024, 1024>>>
+						(temp_d_fb, batch_size / 16, temp_d_result);
 
 				checkCudaErrors(
 						cudaMemcpyAsync(temp_h_result, temp_d_result,
@@ -102,12 +102,13 @@ void aes_benchmark::start() {
 							cudaMemcpyHostToDevice));
 			// Copy one batch of data to device
 
-			/*******
-			cuda_main_kernel<<<batch_size / 16 / 1024, 1024>>>(temp_d_fb,
-					batch_size / 16, temp_d_result);
-			********/
-			 ctr_encrypt_nofrag_perword<<<nblock, 64>>>
-					 ((uint8_t *)temp_d_fb, (uint8_t *)g_expanded_key, total_size / 16);
+
+			cuda_main_kernel<<<batch_size / 16 / 1024, 1024>>>
+			//cuda_main_kernel<<<nblock , 64>>>
+				(temp_d_fb, batch_size / 16, temp_d_result);
+
+			 /*ctr_encrypt_nofrag_perword<<<nblock, 64>>>
+					 ((uint8_t *)temp_d_fb, (uint8_t *)g_expanded_key, total_size / 16);*/
 
 			// transfer<<<batch_size / 4 , 1>>>(temp_d_fb, temp_d_result);
 			// Running kernel to cipher a 16 byte cipher block
@@ -133,7 +134,7 @@ void aes_benchmark::start() {
 	size_t end_ts = GetTimeMS();
 	double thruput = (total_size / (1024 * 1024 * 1024 + 0.0))
 			/ ((end_ts - begin_ts) / 1000.0);
-	double latency = (end_ts - begin_ts) / (this->total_batches / 1000.0);
+	double latency = (end_ts - begin_ts) / (total_batches / 1000.0);
 	printf("total time: %lf s\n", (end_ts - begin_ts) / 1000.0);
 	printf("Thruput: %lf GB/s, latency: %lf us/batch \n", thruput, latency);
 	printf("[End benchmark]\n");
